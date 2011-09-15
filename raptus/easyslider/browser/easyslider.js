@@ -93,7 +93,10 @@
       var t = 0;
       if(!options.vertical) ul.css('width',s*w);
       ul.wrap('<div class="wrapper" id="'+options.wrapperId+'" />');
-      $("#"+options.wrapperId).width(w).height(h).css("overflow","hidden");
+      $("#"+options.wrapperId).width(w).height(h).css({
+        overflow: "hidden",
+        position: 'relative'
+      });
       if(lis.size() < 2)
         return;
       
