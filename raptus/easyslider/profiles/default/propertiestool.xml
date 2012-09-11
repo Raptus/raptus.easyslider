@@ -8,6 +8,7 @@
       controlsBefore:  '',
       controlsAfter:  '',
       controlsFade:  true,
+      controlsEmbedded: false,
       firstText:     'First',
       firstShow:    false,
       lastText:     'Last',
