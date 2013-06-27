@@ -5,6 +5,7 @@ Changelog
 ------------------
 
 * Added responsive option
+* Added touch support
 * Added items option to allow for multiple items per slide
 
 
