@@ -7,7 +7,7 @@
  <javascript cacheable="True" compression="none" cookable="True"
     enabled="True" expression=""
     id="easyslider.settings.js" inline="False"
-    insert-before="++resource++inlinelightbox.js"/>
+    insert-before="++resource++easyslider.js"/>
  <javascript cacheable="True" compression="none" cookable="True"
     enabled="True" expression=""
     id="++resource++easyslider.init.js" inline="False"

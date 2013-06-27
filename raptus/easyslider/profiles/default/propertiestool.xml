@@ -18,7 +18,8 @@
       auto:      false,
       pause:      2000,
       continuous:    false,
-      numeric:     true
+      numeric:     true,
+      responsive:     false
     }</property>
  </object>
 </object>

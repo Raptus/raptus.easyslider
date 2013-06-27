@@ -28,6 +28,8 @@
  */
 
 (function($) {
+  var touch = !!('ontouchstart' in window) || !!('onmsgesturechange' in window);
+
   $.fn.loaded = function(callback) {
     if($(this).data('interval'))
       window.clearInterval($(this).data('interval'));
@@ -45,29 +47,31 @@
 
     // default configuration properties
     var defaults = {
-      prevId:     'prevBtn',
-      prevText:     'Previous',
-      nextId:     'nextBtn',
-      nextText:     'Next',
-      controlsShow: true,
-      controlsBefore: '',
-      controlsAfter:  '',
-      controlsFade: true,
+      prevId:           'prevBtn',
+      prevText:         'Previous',
+      nextId:           'nextBtn',
+      nextText:         'Next',
+      controlsShow:     true,
+      controlsBefore:   '',
+      controlsAfter:    '',
+      controlsFade:     true,
       controlsEmbedded: false,
-      firstId:    'firstBtn',
-      firstText:    'First',
-      firstShow:    false,
-      lastId:     'lastBtn',
-      lastText:     'Last',
-      lastShow:   false,
-      vertical:   false,
-      speed:      800,
-      auto:     false,
-      pause:      2000,
-      continuous:   false,
-      numeric:    false,
-      numericId:    'controls',
-      wrapperId:    'wrapper'
+      firstId:          'firstBtn',
+      firstText:        'First',
+      firstShow:        false,
+      lastId:           'lastBtn',
+      lastText:         'Last',
+      lastShow:         false,
+      vertical:         false,
+      speed:            800,
+      auto:             false,
+      pause:            2000,
+      continuous:       false,
+      numeric:          false,
+      numericId:        'controls',
+      wrapperId:        'wrapper',
+      responsive:       false,
+      items:            1
     };
 
     var options = $.extend(defaults, options);
@@ -83,52 +87,86 @@
       var obj = $(this);
       var lis = $("li", obj);
       var ul = $("ul", obj);
-      var w = 0;
-      lis.each(function() { w = Math.max(w, $(this).width()); }).css('width', w+'px');
-      var h = 0;
-      lis.each(function() { h = Math.max(h, $(this).height()); }).css('height', h+'px');
-      var s = lis.length;
+      var s = lis.size();
       var clickable = true;
-      $(obj).width(w).height(h);
+      if(s < options.items+1)
+        return;
+      var w = 0;
+      var h = 0;
+      var iw = 0;
+      var ih = 0;
+      var wrapper = false;
+      if(options.controlsShow && (!options.numeric || options.numeric == 'both'))
+        obj.addClass('controls');
+      function align(initial) {
+        lis.removeAttr('style');
+        obj.removeAttr('style');
+        ul.removeAttr('style');
+        if(wrapper) wrapper.css('width', 'auto').css('height', 'auto');
+        w = 0;
+        h = 0;
+        lis.each(function() { w = Math.max(w, $(this).width()); }).css('width', w+'px');
+        lis.each(function() { h = Math.max(h, $(this).height()); }).css('height', h+'px');
+        if(!options.vertical) {
+          lis.css('float', 'left');
+          obj.width(w*options.items);
+          ul.css('width', s*w + (options.continuous ? w*options.items : 0));
+          if(wrapper) wrapper.width(w*options.items).height(h);
+        } else {
+          obj.height(h*options.items);
+          if(wrapper) wrapper.width(w).height(h*options.items);
+        }
+        if(options.continuous && !initial)
+          for(var i=0; i<options.items; i++)
+            lis.eq("li:nth-child(" + (i+1) + ")").css("margin-left","-"+ (w*(i+1)) +"px");
+        if(!initial) adjust();
+      }
+      if(options.responsive) {
+        var timer = false;
+        $(window).resize(function(e) {
+          if(timer)
+            return;
+          timer = window.setTimeout(function() {
+            timer = false;
+            align();
+          }, 100);
+        });
+      }
       var ts = s-1;
       var t = 0;
-      if(!options.vertical) ul.css('width',s*w);
       ul.wrap('<div class="wrapper" id="'+options.wrapperId+'" />');
-      $("#"+options.wrapperId).width(w).height(h).css({
+      wrapper = $("#"+options.wrapperId).css({
         overflow: "hidden",
         position: 'relative'
       });
-      if(lis.size() < 2)
-        return;
+      align();
 
       // Provide continuous sliding functionality
-      if(options.continuous){
-        ul.prepend($("ul li:last-child", obj).clone().css("margin-left","-"+ w +"px"));
-        ul.append($("ul li:nth-child(2)", obj).clone());
-        ul.css('width',(s+1)*w);
+      if(options.continuous) {
+        for(var i=0; i<options.items; i++)
+          ul.prepend($("ul li:nth-child(" + (s-i) + ")", obj).clone().css("margin-left","-"+ (w*(i+1)) +"px"));
+        for(i=0; i<options.items; i++)
+          ul.append($("ul li:nth-child(" + (options.items+i+1) + ")", obj).clone());
         lis = $("li", obj);
       };
 
       // Set slide direction
-      if(!options.vertical) {
-        lis.css('float', 'left');
-        $(obj).addClass('horizontal');
-      } else
-        $(obj).addClass('vertical');
+      if(!options.vertical)
+        obj.addClass('horizontal');
+      else
+        obj.addClass('vertical');
 
       // Show control elements
       if(options.controlsShow){
 
         var html = options.controlsBefore;
         if (!options.numeric || options.numeric == 'both') {
-          $(obj).addClass('controls');
           if(options.firstShow) html += '<span class="firstBtn '+ options.firstId +'" id="'+ options.firstId +'"><a href=\"javascript:void(0);\">'+ options.firstText +'</a></span>';
           html += ' <span class="prevBtn '+ options.prevId +'" id="'+ options.prevId +'"><a href=\"javascript:void(0);\">'+ options.prevText +'</a></span>';
-
         }
 
         if (options.numeric || options.numeric == 'both') {
-          $(obj).addClass('numeric');
+          obj.addClass('numeric');
           html += '<ol class="controls '+ options.numericId +'" id="'+ options.numericId +'"></ol>';
         }
 
@@ -143,7 +181,7 @@
           html = '<div class="controls-wrapper">' + html + '</div>';
           lis.each(function() { $(this).append(html); });
         } else {
-          $(obj).append(html);
+          obj.append(html);
         }
       };
 
@@ -174,6 +212,16 @@
           animate("last",true);
         });
       };
+
+      if(touch)
+        obj.swipe({
+          swipeLeft: function(e) {
+            animate("next",true);
+          },
+          swipeRight: function(e) {
+            animate("prev",true);
+          }
+        });
 
       function setCurrent(i){
         i = parseInt(i)+1;
