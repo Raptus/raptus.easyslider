@@ -1,11 +1,13 @@
 (function($) {
-  $(document).ready(function() {
+
+  function init(e) {
+    var container = $(this);
     var loaded = false;
-    $('.easyslider').loaded(function() {
+    container.find('.easyslider').loaded(function() {
       if(loaded)
         return;
       loaded = true;
-      $('.easyslider').each(function() {
+      container.find('.easyslider').each(function() {
         var classes = $(this).attr('class').split(' ');
         var settings;
         for(var i=0; i<classes.length; i++)
@@ -18,5 +20,11 @@
         $(this).easySlider(settings);
       });
     });
+  }
+
+  $(document).ready(function(e) {
+    $.proxy(init, $('body'))(e);
+    $('.viewletmanager').on('viewlets.updated', init);
   });
+
 })(jQuery);

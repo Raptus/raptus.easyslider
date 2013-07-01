@@ -4,6 +4,8 @@ Changelog
 1.0a4 (unreleased)
 ------------------
 
+* Adjusted javascript initialization to work with the new component selection functionality
+  introduced in raptus.article.core 2.0b13
 * Added responsive option
 * Added touch support
 * Added items option to allow for multiple items per slide
