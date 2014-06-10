@@ -4,7 +4,8 @@ Changelog
 1.0a6 (unreleased)
 ------------------
 
-- Nothing changed yet.
+* Fixed over-sliding.
+* Changed sliding speed.
 
 
 1.0a5 (2013-07-03)

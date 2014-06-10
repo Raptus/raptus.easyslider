@@ -197,6 +197,8 @@
               animate($("a",$(this)).attr('rel'),true);
             });
         };
+        // set current initially to 1
+        $("li." + options.numericId + 1).addClass("current");
       }
       if (!options.numeric || options.numeric == 'both') {
         $("a","."+options.nextId).click(function(){
@@ -241,16 +243,16 @@
         if(options.numeric) setCurrent(t);
       };
 
-      function animate(dir,clicked){
+      function animate(pos,clicked){
         if (clickable){
           clickable = false;
           var ot = t;
-          switch(dir){
+          switch(pos){
             case "next":
-              t = (ot>=ts) ? (options.continuous ? t+1 : ts) : t+1;
+              t = (t>=ts && !options.continuous) ? ts : ++t;
               break;
             case "prev":
-              t = (t<=0) ? (options.continuous ? t-1 : 0) : t-1;
+              t = (t<=0 && !options.continuous) ? 0 : --t;
               break;
             case "first":
               t = 0;
@@ -259,34 +261,35 @@
               t = ts;
               break;
             default:
-              t = dir;
+              t = pos;
               break;
           };
+
           var diff = Math.abs(ot-t);
-          var speed = diff*options.speed;
+          var speed = options.speed;
           if(!options.vertical) {
             p = (t*w*-1);
             $("ul",obj).animate(
               { marginLeft: p },
-              { queue:false, duration:speed, complete:adjust }
+              { queue:false, duration:speed , complete:adjust }
             );
           } else {
             p = (t*h*-1);
             $("ul",obj).animate(
               { marginTop: p },
-              { queue:false, duration:speed, complete:adjust }
+              { queue:false, duration:speed , complete:adjust }
             );
           };
 
           if(!options.continuous && options.controlsFade){
-            if(t==ts){
+            if(t>=ts){
               $("a","."+options.nextId).hide();
               $("a","."+options.lastId).hide();
             } else {
               $("a","."+options.nextId).show();
               $("a","."+options.lastId).show();
             };
-            if(t==0){
+            if(t<=0){
               $("a","."+options.prevId).hide();
               $("a","."+options.firstId).hide();
             } else {
@@ -296,7 +299,7 @@
           };
 
           if(clicked) clearTimeout(timeout);
-          if(options.auto && dir=="next" && !clicked){;
+          if(options.auto && pos=="next" && !clicked){
             timeout = setTimeout(function(){
               animate("next",false);
             },diff*options.speed+options.pause);
@@ -308,13 +311,11 @@
 
       // init
       var timeout;
-      if(options.auto){;
+      if(options.auto){
         timeout = setTimeout(function(){
           animate("next",false);
         },options.pause);
       };
-
-      if(options.numeric) setCurrent(0);
 
       if(!options.continuous && options.controlsFade){
         $("a","."+options.prevId).hide();
